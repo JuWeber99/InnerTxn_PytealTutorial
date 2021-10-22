@@ -1,6 +1,47 @@
-# 1. Introduction
 
-Introducing **Inner Transactions** on **AVM1.0** and _PyTEAL_
+# Requirements
+
+- Basic knowledge about Algorand and blockchain technologies
+- Basic knowledge about PyTeal development
+- Basic understanding of Smart Contracts on Algorand
+- PyTEAL version supporting TEAL v5
+- Algorand sandbox
+
+
+
+# 1. Inner Transaction Fundamentals
+
+In this tutorial i want to introduce you to a new feature that came with the update to AVM1.0: **Inner Transactions**.
+
+**Inner Transactions** enable Stateful Smart Contracts to perform their on transactions. These transactions are performed by on-chain logic and so empower Stateful Smart Contracts to encapsulate much more logic on-chain and away from your centralized backend application logic. 
+In this way more of the logic actually performed in Usecases using Algorand can be transparently governed and secured by the blockchain itself. 
+
+Consulting to the Docs you can find the structure of each type of transaction here: https://developer.algorand.org/docs/get-details/transactions
+Look there to make sure you understand the structure of the **inner transactions** you want to send and you chose the right structure for your **InnerTransaction**.
+
+With this function for example, a simple payment transaction can be issued:
+
+```
+@Subroutine(TealType.none)
+def inner_payment_txn(amount: TealType.uint64, receiver: TealType.bytes) -> Expr:
+    return Seq([
+        InnerTxnBuilder.Begin(),
+        InnerTxnBuilder.SetFields({
+            TxnField.type_enum: TxnType.Payment,
+            TxnField.sender: Global.current_application_address(),
+            TxnField.amount: amount,
+            TxnField.receiver: receiver
+            }),
+        InnerTxnBuilder.Submit()
+    ])
+```
+**Inner Transaction** in PyTEAL always start with a c followed by setting the fields with either `InnerTxnBuilder.SetField()` one by one or setting all fields in one function with `InnerTxnBuilder.SetFields()`.
+In an **Inner Transaction** you created the context of with `InnerTxnBuilder.Begin()` all fields that get not set by `InnerTxnBuilder.SetField()` or `InnerTxnBuilder.SetFields()` are automatically set to **zero-values**. 
+On the `InnerTxnBuilder.Begin()` instruction the *sender* of the transaction gets automatically set to `Global.current_application_address()` since only the contract itself can authorize to send an **Inner Transaction**. The `FirstValid` and the 'LastValid' values of the **Inner Transaction** will be set to the values of the **wrapping** application call. Last but not least the the fees for the **Inner Transaction** gets set to the *minimum fee* possible also with fee-overpaying from earlier transactions taken into consideration.
+Finally the transaction can be executed via `InnerTxnBuilder.Submit()`. It fails if already **16** **Inner Transaction** have been submitted in the block or the transaction itself fails. You can also access the *ID* of the newly create **ASA** on sucessful execution of the Inner Transaction by using the: `InnerTxn.created_asset_id()` instruction right after the submit. This will also be again shown in the *Example Scenario*
+
+On the Algorand Dev Portal you can find a great introduction to **Inner Transactions**: https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/?from_query=inner%20tra#inner-transactions
+
 # 2. Example Scenario Concept
 
 
@@ -67,10 +108,14 @@ The `STAKED_AMOUNT` determines the amount of *microAlgos* a user can receive as 
 Based on it, the refund amount `Y` can be calculated and refunded to the buyer in exchange for `X` amount **ASA** units if he wants so. 
 `Y` whould be the result out of the following:
 
+
+
 * `REFUND=X * FIXED_LICENSE_PRICE`. 
 
 After doing that the `STAKED_AMOUNT` will get substracted by the refund: `STAKED_AMOUNT=STAKED_AMOUNT-REFUND`.
 The `REFUND_PERIOD` is a value of seconds and no Asset handin after the refund period: 
+
+
 * `Global.latest_timestamp() - LAST_STAKE_TIMESTAMP <= REFUND_PERIOD`,
 
 gets any part of `STAKE_AMOUNT` back.
@@ -78,7 +123,7 @@ If the call to give back assets happens after the refund_period the buyer gets n
 If he buys more licenses the refund of the previous buy will be obsolet.
 Warning! For simplicities sake the handling of Edge Cases regarding abuse prevention is may not complete and security checks are missing!
 
-# 2.3 Setting the Contract up
+# 2.3 Setting up the Contract
 
 Now ... as the contract is created on the blockchain and *Alice* can setup it up for her needs. 
 She wants now to set the price per license to **1000** *microAlgo* and the total amount of licenses to **100**. 
@@ -105,7 +150,9 @@ But before we need to make sure to seed the account with microAlgos.
 To ensure this happens safely we just group a payment transaction at **group index 0** to seed the app together with the application call to setup the app at **group index 1**.
 Below you can see how the goal commands for each transaction look. 
 In the Github Repo you can find all the code used ...and more, with comments!
-* https://github.com/JuWeber99/algorand-innerTxn-tutorial
+
+
+* https://github.com/JuWeber99/InnerTxn_PytealTutorial/
 ```
     # seed app 
     goal clerk send --from="$app_creator" --to="$app_addr" --amount=400000 
@@ -339,11 +386,15 @@ If(refund_amount > Int(0)).Then(
 
 Now *Bob* wants to check if all went well and he got the units of *Alice´s* **ASA**:
 
+
+
 * `goal account info -a "$client"`
 
 He can see all the **ASAs** he has with their **ID**, **asset name**, **unit name** and **balance**.
 
 *Bob* is glad as everything seems to have worked correctly:
+
+
 * `ID 302, ALICE1, balance 18 ROW (frozen)`
 
 
@@ -400,6 +451,8 @@ Since transactions are very cheap on Algorand *Bob* decides to try if this reall
 He instantly performs the above bash-function instantly after the buying action to give back **10** units of his **18** bought licence units.
 
 He now checks is the transactions are really executed as they should be and looks at the block with the newly created transaction hash: 
+
+
 * `goal ledger block $block_round` (see in output of the `goal app call`-command -> e.g. committed in round 144)
 
 ```
@@ -502,14 +555,18 @@ def handle_close_out_txn():
 ```
 
 If *Bob* after handing back in **10** of his **18 ASA units** now issues a closing out call:
-* `goal app closeout --from $client --app-id $app_id --foreign-asset $asset_id`
+
+*  `goal app closeout --from $client --app-id $app_id --foreign-asset $asset_id`
 
 and then checks if he has no **ASA units left now**:
-* `goal account info -a "$client"` 
+
+*  `goal account info -a "$client"` 
 
 ... he now sees (Note! The IDs will probably be different for you so I shortened the output):
 
-`ALICE1, balance 0 ROW (frozen)`
+
+
+* `ALICE1, balance 0 ROW (frozen)`
 
 
 If `Bob` checks the block created out of the successful `CloseOut` transaction and the `CloseOut`was performed after the `REFUND_PERIOD` was over, he will sadly have to accept that his stake is now once and for all *Alice´s* since there is no **Inner Transaction** performed by the **LicenseManagerContract** to send the refund after the `REFUND_PERIOD` :
