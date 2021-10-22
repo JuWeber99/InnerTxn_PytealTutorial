@@ -45,10 +45,10 @@ On the Algorand Dev Portal you can find a great introduction to **Inner Transact
 # 2. Example Scenario Concept
 
 
-To demonstrate the usefulness of Inner Transactions the article uses an Example Scenario utilizing *PyTEAL*.
+To demonstrate the usefulness of **Inner Transactions** the article uses an Example Scenario utilizing *PyTEAL*.
 
 There will be a Smart Contract which functions like an Asset-Manager as the only one being able to transfer units of the asset using clawback transactions. 
-For simplicities sake the Asset Manager just gives away a certain amount X of the ASA for Y amount of microAlgo
+For simplicities sake the Asset Manager just gives away a certain amount X of the **ASA** for Y amount of _microAlgo_
 This resolves to the following example:
 
 A creator *Alice* wants to sell a *license* which enables the holder to rightfully republish or use something she is the originator of.
@@ -99,21 +99,21 @@ function create_app {
 ```
 
 The app here basically just checks if is not already created thus has an application id of 0.
-Also it checks the application  and the state schema was specified correctly  for this app sinceit has to have 2 local uint Variables (`STAKED_AMOUNT`, `LAST_STAKE_ROUND`)
+Also it checks the application  and the state schema was specified correctly  for this app since it has to have 2 local uint Variables (`STAKED_AMOUNT`, `LAST_STAKE_ROUND`)
 and **3 global uint** variables (`FIXED_LICENSE_PRICE`, `ASSET_ID`, `REFUND_PERIOD`)
 for the application state and it that its a single transaction with on completion code: **NoOp**. 
 
 The `STAKED_AMOUNT` keeps track of the payed in *microAlgos* by the buyer.
 The `STAKED_AMOUNT` determines the amount of *microAlgos* a user can receive as a maximum. 
 Based on it, the refund amount `Y` can be calculated and refunded to the buyer in exchange for `X` amount **ASA** units if he wants so. 
-`Y` whould be the result out of the following:
+`Y` would be the result out of the following:
 
 
 
 * `REFUND=X * FIXED_LICENSE_PRICE`. 
 
 After doing that the `STAKED_AMOUNT` will get substracted by the refund: `STAKED_AMOUNT=STAKED_AMOUNT-REFUND`.
-The `REFUND_PERIOD` is a value of seconds and no Asset handin after the refund period: 
+The `REFUND_PERIOD` is a value of seconds and no refund for an Asset after the refund period: 
 
 
 * `Global.latest_timestamp() - LAST_STAKE_TIMESTAMP <= REFUND_PERIOD`,
@@ -127,7 +127,7 @@ Warning! For simplicities sake the handling of Edge Cases regarding abuse preven
 
 Now ... as the contract is created on the blockchain and *Alice* can setup it up for her needs. 
 She wants now to set the price per license to **1000** *microAlgo* and the total amount of licenses to **100**. 
-She names the asset and the units of it and links data on ipfs via the url, to link a file containing another visually showable proof. 
+She names the asset and the units of it and links data on ipfs via the url, to link a file containing another visual proof. 
 Also she can set a refund period. The refund period specifies the time a buyer is allegible to give back license units and get his algo back 
 
 ```
@@ -146,13 +146,13 @@ refund_period=1 # approx. q round = 4,5 seconds on a real network
 ```
 
 Then she just needs to call the *LicenseManagerContract* with the settings she wants to use as arguments to perform the setup of the smart contract.
-But before we need to make sure to seed the account with microAlgos.
+But before we need to make sure to seed the account with _microAlgos_.
 To ensure this happens safely we just group a payment transaction at **group index 0** to seed the app together with the application call to setup the app at **group index 1**.
 Below you can see how the goal commands for each transaction look. 
-In the Github Repo you can find all the code used ...and more, with comments!
+In the Github-Repo you can find all the code used ...and more, with comments!
 
 
-* https://github.com/JuWeber99/InnerTxn_PytealTutorial/
+* https://github.com/JuWeber99/algorand-innerTxn-tutorial
 ```
     # seed app 
     goal clerk send --from="$app_creator" --to="$app_addr" --amount=400000 
@@ -175,7 +175,7 @@ def setup_application( ):
 ```
 
 To create a new **ASA** via **Inner Transaction** there needs to be a function performing an *AssetConfiguration* transaction with the different `config_asset` -
-parameters being set in the transaction using the app arguments specified by *Alice* in the **Application Call**.
+parameters being set in the transaction using the apps arguments specified by *Alice* in the **Application Call**.
 
 ```
 @Subroutine(TealType.uint64)
@@ -205,7 +205,7 @@ def executeAssetCreationTxn(txn_index: TealType.uint64) -> TxnExpr:
     ])
 ```
 
-When this code gets sucessfully executed, the resulting block can be inspected by using `goal ledger block`.
+When this code gets successfully executed, the resulting block can be inspected by using `goal ledger block`.
 Like this its easy to check if the **Inner Transactions** looks like `Alice` wants:
 
 ```
@@ -236,8 +236,8 @@ Like this its easy to check if the **Inner Transactions** looks like `Alice` wan
 And again checking against: https://developer.algorand.org/docs/get-details/transactions/#create-an-asset ...
 It looks like it indeed is correct!
 
-The InnerTransaction can also pass back the *ID* of the newly created **ASA** back to the program.
-This can be used to safe the *ID* of newly created assed instantly to the global state. 
+The `InnerTransaction` can also pass back the *ID* of the newly created **ASA** back to the program.
+This can be used to safe the *ID* of newly created asset instantly to the global state. 
 The asset id can be returned by returning `InnerTxn.created_asset_id()`. 
 We can even set a note for the **Inner Transaction**!
 
@@ -299,7 +299,7 @@ function optin_routine {
 *Bob* gets a call from *Alice* that he now can as promised buy licenses from her on the Algorand Blockchain.
 He opens the aforementioned mysterious dApp in his browser and now wants to buy some licenes for 18000 microAlgos!
 
-Therefore Bob has to group the Application Call to call the **LicenseManagerContract** with his payment transaction over 18000 microAlgos to the contract. 
+Therefore _Bob_ has to group the `ApplicationCall`to call the **LicenseManagerContract** with his payment transaction over 18000 _microAlgos_ to the contract. 
 
 ```
     ...
@@ -310,7 +310,7 @@ Therefore Bob has to group the Application Call to call the **LicenseManagerCont
     ...
 ```
 
-Again, both single transactions whould look like this using the goal SDK:
+Again, both single transactions would look like this using the _goal SDK_:
 
 ```
 goal app call --app-id "$app_id" --from "$client" --note "ALGO_HANDIN" --foreign-asset $asset_id  \
@@ -320,7 +320,7 @@ goal clerk send --from="$client" --to="$app_addr" --amount=18000
 
 ```
 
-As *Bobs* Transaction group gets sucessfully send to the contract, the contract executes the logic assigned to `on_algo_hand_in`, because of the note and the group size.
+As *Bobs* Transaction group gets successfully send to the contract, the contract executes the logic assigned to `on_algo_hand_in`, because of the note and the group size.
 
 ```
  [ Global.group_size() == Int(2),
@@ -341,7 +341,7 @@ return Seq(
 ```
 
 Then the new feature for **InnerTransactions** comes in very handy yet again!
-The contract finally can send the **18** units if the **ASA** to *Alice* using an inner transaction if the `asset_amount` whould be greater than 0. 
+The contract finally can send the **18** units if the **ASA** to *Alice* using an inner transaction if the `asset_amount` would be greater than 0. 
 
 ```
 If(asa_handout_amount > Int(0)).Then(
@@ -353,8 +353,8 @@ If(asa_handout_amount > Int(0)).Then(
             ) ...
 ```
 
-Therefore simply specify the **InnerTransaction** again. After, like everytime the InnerTxnBuilder begins, the necassary fields are set to their value via the `SetFields` function to perform this action for multiple fields in one function, passing a python - key-value mapping.
-Since the asset transfer is performed everytime and only by the contract itself, using a clawback transacttion, the asset_sender must be set to the address of the **LicenseManagerContract** itself. The asset_amount whould be the aforementioned `ASA_HANDOUT_AMOUNT` (**18**). 
+Therefore simply specify the **InnerTransaction** again. After the `InnerTxnBuilder` begins, the necassary fields are set to their value via the `SetFields` function to perform this action for multiple fields in one function, passing a python - key-value mapping.
+Since the asset transfer is performed everytime and only by the contract itself, using a clawback transaction, the asset_sender must be set to the address of the **LicenseManagerContract** itself. The asset_amount would be the aforementioned `ASA_HANDOUT_AMOUNT` (**18**). 
 
 
 ```
@@ -373,7 +373,7 @@ def executeAssetTransfer(asset_id: TealType.uint64, asset_amount: TealType.uint6
     ])
 ```
 
-Now if *Bob* has send more *microAlgos* so that there is a rest of the division when calculating `ASA_HANDOUT_AMOUNT`, the rest amount of microAlgos get send back to *Bob*.
+Now if *Bob* has send more *microAlgos* so that there is a rest of the division when calculating `ASA_HANDOUT_AMOUNT`, the rest amount of _microAlgos_ get send back to *Bob*.
 Therefore the simple inner payment function from the beginning can be used, specifying how much *microsAlgo* to send to which **receiver**:
 
 ```
@@ -402,7 +402,7 @@ He can see all the **ASAs** he has with their **ID**, **asset name**, **unit nam
 
 Now whats left is to discover the refund mechanism and the closeout logic.
 If Bob decides before the refund period ends he can, as already described above, get back a part of his stake or even everything on full refund.
-He knows the exact time he has to refund via the **global state value**:`REFUND_PERIOD` so he is obliged to check it correctly because he can´t refund and cant give back the units as beforehand aggreed with *Alice* 
+He knows the exact time he has to refund via the **global state value**:`REFUND_PERIOD` so he is obliged to check it correctly because he can´t refund and cant give back the units as beforehand agreed with *Alice* 
 
 ```
 @Subroutine(TealType.uint64)
@@ -448,12 +448,12 @@ function asset_handin {
 
 Now if he did this correctly in the refund period, he can perform the refund. 
 Since transactions are very cheap on Algorand *Bob* decides to try if this really works.
-He instantly performs the above bash-function instantly after the buying action to give back **10** units of his **18** bought licence units.
+He instantly performs the above bash-function instantly after the buying action to give back **10** units of his **18** bought license units.
 
 He now checks is the transactions are really executed as they should be and looks at the block with the newly created transaction hash: 
 
 
-* `goal ledger block $block_round` (see in output of the `goal app call`-command -> e.g. committed in round 144)
+* `goal ledger block $block_round` (see in output of the `goal app call`- command -> e.g. committed in round 144)
 
 ```
     "txns": [
@@ -487,7 +487,7 @@ He now checks is the transactions are really executed as they should be and look
           ],
 ```
 
-*Bob* sees that he indeed got **10000** *microAlgos* via **Inner Transaction** in the `itxn - Array` the the above output:
+*Bob* sees that he indeed got **10000** *microAlgos* via **Inner Transaction** in the `itxn - Array` the above output:
 
 ```
 txn": {
@@ -501,7 +501,7 @@ txn": {
         }
 ```
 
-.. and of course the **10 ASA units** were also withrdrawn from his account:
+.. and of course the **10 ASA units** were also withdrawn from his account:
 
 ```
 "txn": {
@@ -520,7 +520,7 @@ txn": {
 # 2.7 Close out of the Contract
 
 Last but not least *Bob* could **Close Out** of the **LicenseManagerContract** by sending an **Application Call** with a **OnCompletion** value of **CloseOut**. 
-This will on success result in a handin of the whole balance of *ASA units* which have the **ASSET_ID** managed by the **LicenseManagerContract** (stored in its global state).
+This will on success result in a revoke of all *ASA units* which have the **ASSET_ID** managed by the **LicenseManagerContract** (stored in its global state).
 If the **CloseOut**-Call happens before the end of the refund period *Bob* whould get his `STAKED_AMOUNT` of *microAlgos* refunded.
 Else, he will just turn all the ** ASA units ** he posseses in whithout a reward.
 
@@ -591,5 +591,5 @@ If `Bob` checks the block created out of the successful `CloseOut` transaction a
 
 # 3. Conclusion
 
-In my opinion, the ability to perform transactions from on-chain logic will bring a new dynamic to the developement of the Ecosystem since it enables creator to think out the concepts for their desired project in a more straight-forward way. Currently `AssetFreeze, AssetConfiguration, AssetTransfer and Payment` *Transaction-Types* are supported for performing **Inner Transactions**. If this article sparked your interest you can also see more *PyTEAL* snippets for inner transactions of different kinds each got an extra file so you dont have to scroll inside one big file!
-A bright future is ahead for even a bigger empowerement of capabilities of the *TEAL* - Language since the *Algorand Dev team* is also looking into providing the possibility to perform `Application Call` transactions using **Inner Transactions**: https://github.com/algorand/go-algorand/pull/3120
+In my opinion, the ability to perform transactions from on-chain logic will bring a new dynamic to the development of the Ecosystem since it enables creators to think out the concepts for their desired project in a more straightforward way. Currently `AssetFreeze, AssetConfiguration, AssetTransfer and Payment` *Transaction-Types* are supported for performing **Inner Transactions**. If this article sparked your interest you can also see more *PyTEAL* snippets for inner transactions of different kinds each got an extra file so you don`t have to scroll inside one big file!
+A bright future is ahead for even a bigger empowerment of capabilities of the *TEAL* - Language since the *Algorand Dev team* is also looking into providing the possibility to perform `Application Call` transactions using **Inner Transactions**: https://github.com/algorand/go-algorand/pull/3120
