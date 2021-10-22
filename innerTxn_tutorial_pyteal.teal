@@ -1,0 +1,478 @@
+#pragma version 5
+global GroupSize
+int 1
+==
+bnz main_l11
+global GroupSize
+int 2
+==
+bnz main_l5
+global GroupSize
+int 2
+>=
+bnz main_l4
+err
+main_l4:
+int 0
+return
+main_l5:
+gtxn 1 Note
+byte "SETUP"
+b==
+bnz main_l10
+gtxn 1 Note
+byte "ALGO_HANDIN"
+b==
+bnz main_l8
+err
+main_l8:
+int 1
+int 0
+callsub sub13
+callsub sub14
+callsub sub6
+int 0
+callsub sub13
+callsub sub5
+&&
+return
+b main_l25
+main_l10:
+int 0
+int 1
+callsub sub4
+callsub sub10
+&&
+return
+main_l11:
+txn ApplicationID
+int 0
+==
+bnz main_l24
+txn Note
+byte "ASSET_HANDIN"
+b==
+bnz main_l23
+txn OnCompletion
+int DeleteApplication
+==
+bnz main_l22
+txn OnCompletion
+int ClearState
+==
+bnz main_l21
+txn OnCompletion
+int OptIn
+==
+bnz main_l20
+txn OnCompletion
+int CloseOut
+==
+bnz main_l18
+err
+main_l18:
+txn Sender
+callsub sub9
+callsub sub12
+&&
+return
+b main_l25
+main_l20:
+int 1
+return
+main_l21:
+int 0
+return
+main_l22:
+int 0
+return
+main_l23:
+callsub sub8
+callsub sub7
+&&
+return
+main_l24:
+callsub sub3
+return
+main_l25:
+sub0: // inner_asser_creation
+store 17
+itxn_begin
+byte "TUT_ITXN_AC"
+itxn_field Note
+int acfg
+itxn_field TypeEnum
+global CurrentApplicationAddress
+itxn_field ConfigAssetClawback
+global CurrentApplicationAddress
+itxn_field ConfigAssetReserve
+int 1
+itxn_field ConfigAssetDefaultFrozen
+load 17
+gtxnsa ApplicationArgs 0
+itxn_field ConfigAssetMetadataHash
+load 17
+gtxnsa ApplicationArgs 1
+itxn_field ConfigAssetName
+load 17
+gtxnsa ApplicationArgs 2
+itxn_field ConfigAssetUnitName
+load 17
+gtxnsa ApplicationArgs 3
+btoi
+itxn_field ConfigAssetTotal
+load 17
+gtxnsa ApplicationArgs 4
+btoi
+itxn_field ConfigAssetDecimals
+load 17
+gtxnsa ApplicationArgs 5
+itxn_field ConfigAssetURL
+itxn_submit
+itxn CreatedAssetID
+retsub
+sub1: // inner_asset_transfer
+store 7
+store 6
+store 5
+store 4
+itxn_begin
+byte "TUT_ITXN_AT"
+itxn_field Note
+int axfer
+itxn_field TypeEnum
+load 4
+itxn_field XferAsset
+load 6
+itxn_field AssetSender
+load 5
+itxn_field AssetAmount
+load 7
+itxn_field AssetReceiver
+itxn_submit
+retsub
+sub2: // inner_payment_txn
+store 9
+store 8
+itxn_begin
+byte "TUT_ITXN_PAY"
+itxn_field Note
+int pay
+itxn_field TypeEnum
+global CurrentApplicationAddress
+itxn_field Sender
+load 8
+itxn_field Amount
+load 9
+itxn_field Receiver
+itxn_submit
+retsub
+sub3: // is_valid_creation_call
+txn TypeEnum
+int appl
+==
+assert
+txn OnCompletion
+int NoOp
+==
+assert
+txn GlobalNumByteSlice
+int 0
+==
+assert
+txn GlobalNumUint
+int 3
+==
+assert
+txn LocalNumByteSlice
+int 0
+==
+assert
+txn LocalNumUint
+int 2
+==
+assert
+int 1
+retsub
+sub4: // is_valid_setup_call
+store 1
+store 0
+load 0
+gtxns TypeEnum
+int pay
+==
+assert
+load 0
+gtxns Amount
+int 400000
+>=
+assert
+load 1
+gtxns TypeEnum
+int appl
+==
+assert
+load 1
+gtxns OnCompletion
+int NoOp
+==
+assert
+load 1
+gtxns ApplicationID
+int 0
+!=
+assert
+load 1
+gtxns NumAppArgs
+int 8
+==
+assert
+int 1
+retsub
+sub5: // buy_licenses
+store 3
+store 2
+load 2
+gtxns Amount
+callsub sub14
+/
+int 0
+>
+bnz sub5_l3
+sub5_l1:
+load 2
+gtxns Amount
+callsub sub14
+%
+int 0
+>
+bz sub5_l4
+load 2
+gtxns Amount
+callsub sub14
+%
+load 2
+gtxns Sender
+callsub sub2
+b sub5_l4
+sub5_l3:
+load 3
+load 2
+gtxns Amount
+callsub sub14
+/
+global CurrentApplicationAddress
+load 2
+gtxns Sender
+callsub sub1
+b sub5_l1
+sub5_l4:
+load 2
+gtxns Sender
+byte "stakeAmount"
+load 2
+gtxns Amount
+callsub sub14
+/
+callsub sub14
+*
+app_local_put
+load 2
+gtxns Sender
+byte "lastStakeTimestamp"
+global LatestTimestamp
+app_local_put
+int 1
+retsub
+sub6: // is_valid_license_buy_call
+store 13
+store 12
+store 11
+store 10
+load 10
+gtxns Sender
+callsub sub9
+assert
+load 10
+gtxns TypeEnum
+int appl
+==
+assert
+load 10
+gtxns OnCompletion
+int NoOp
+==
+assert
+load 11
+gtxns TypeEnum
+int pay
+==
+assert
+load 10
+gtxns Sender
+load 11
+gtxns Sender
+==
+assert
+load 10
+gtxnsa Assets 0
+load 12
+==
+assert
+load 11
+gtxns Amount
+load 13
+>=
+assert
+int 1
+retsub
+sub7: // refund_bought_licenses
+callsub sub11
+bnz sub7_l2
+int 0
+b sub7_l3
+sub7_l2:
+callsub sub13
+txna ApplicationArgs 0
+btoi
+txn Sender
+global CurrentApplicationAddress
+callsub sub1
+txna ApplicationArgs 0
+btoi
+callsub sub14
+*
+txn Sender
+callsub sub2
+txn Sender
+byte "stakeAmount"
+txn Sender
+callsub sub16
+txna ApplicationArgs 0
+btoi
+callsub sub14
+*
+-
+app_local_put
+int 1
+sub7_l3:
+retsub
+sub8: // is_valid_refund_call
+txn Sender
+callsub sub9
+assert
+txn OnCompletion
+int NoOp
+==
+assert
+txna ApplicationArgs 0
+btoi
+callsub sub14
+*
+callsub sub14
+>=
+assert
+txn Sender
+callsub sub16
+txna ApplicationArgs 0
+btoi
+callsub sub14
+*
+>=
+assert
+txna Assets 0
+callsub sub13
+==
+assert
+int 1
+retsub
+sub9: // is_acc_opted_in
+store 14
+load 14
+global CurrentApplicationID
+app_opted_in
+retsub
+sub10: // setup_application
+byte "fixedLicensePrice"
+gtxna 1 ApplicationArgs 6
+btoi
+app_global_put
+byte "assetID"
+int 1
+callsub sub0
+app_global_put
+byte "refundPeriod"
+gtxna 1 ApplicationArgs 7
+btoi
+app_global_put
+int 1
+retsub
+sub11: // is_allegible_for_refund
+global LatestTimestamp
+txn Sender
+callsub sub17
+-
+callsub sub15
+<=
+retsub
+sub12: // close_out
+callsub sub11
+bnz sub12_l3
+sub12_l1:
+txn Sender
+int 0
+asset_holding_get AssetBalance
+store 18
+store 19
+load 18
+load 19
+int 0
+>
+&&
+bz sub12_l4
+callsub sub13
+load 19
+txn Sender
+global CurrentApplicationAddress
+callsub sub1
+b sub12_l4
+sub12_l3:
+txn Sender
+byte "stakeAmount"
+app_local_get
+txn Sender
+callsub sub2
+b sub12_l1
+sub12_l4:
+txn Sender
+byte "stakeAmount"
+app_local_del
+txn Sender
+byte "lastStakeTimestamp"
+app_local_del
+int 1
+retsub
+sub13: // getAssetId
+byte "assetID"
+app_global_get
+retsub
+sub14: // getFixedAssetPrice
+byte "fixedLicensePrice"
+app_global_get
+retsub
+sub15: // getRefundPeriod
+byte "refundPeriod"
+app_global_get
+retsub
+sub16: // getStakedAmount
+store 16
+load 16
+byte "stakeAmount"
+app_local_get
+retsub
+sub17: // getLastStakeTimestamp
+store 15
+load 15
+byte "lastStakeTimestamp"
+app_local_get
+retsub
