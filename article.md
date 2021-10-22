@@ -533,3 +533,6 @@ If `Bob` checks the block created out of the successful `CloseOut` transaction a
 ```
 
 # 3. Conclusion
+
+In my opinion, the ability to perform transactions from on-chain logic will bring a new dynamic to the developement of the Ecosystem since it enables creator to think out the concepts for their desired project in a more straight-forward way. Currently `AssetFreeze, AssetConfiguration, AssetTransfer and Payment` *Transaction-Types* are supported for performing **Inner Transactions**. If this article sparked your interest you can also see more *PyTEAL* snippets for inner transactions of different kinds each got an extra file so you dont have to scroll inside one big file!
+A bright future is ahead for even a bigger empowerement of capabilities of the *TEAL* - Language since the *Algorand Dev team* is also looking into providing the possibility to perform `Application Call` transactions using **Inner Transactions**: https://github.com/algorand/go-algorand/pull/3120
