@@ -35,8 +35,8 @@ def inner_payment_txn(amount: TealType.uint64, receiver: TealType.bytes) -> Expr
         InnerTxnBuilder.Submit()
     ])
 ```
-**Inner Transaction** in PyTEAL always start with a c followed by setting the fields with either `InnerTxnBuilder.SetField()` one by one or setting all fields in one function with `InnerTxnBuilder.SetFields()`.
-In an **Inner Transaction** you created the context of with `InnerTxnBuilder.Begin()` all fields that get not set by `InnerTxnBuilder.SetField()` or `InnerTxnBuilder.SetFields()` are automatically set to **zero-values**. 
+**Inner Transaction** in PyTEAL always start with a `InnerTxnBuilder.Begin()` followed by setting the fields with either `InnerTxnBuilder.SetField()` one by one or setting all fields in one function with `InnerTxnBuilder.SetFields()`.
+In an **Inner Transaction** you create the context with `InnerTxnBuilder.Begin()` all fields that get not set by `InnerTxnBuilder.SetField()` or `InnerTxnBuilder.SetFields()` are automatically set to **zero-values**. 
 On the `InnerTxnBuilder.Begin()` instruction the *sender* of the transaction gets automatically set to `Global.current_application_address()` since only the contract itself can authorize to send an **Inner Transaction**. The `FirstValid` and the 'LastValid' values of the **Inner Transaction** will be set to the values of the **wrapping** application call. Last but not least the the fees for the **Inner Transaction** gets set to the *minimum fee* possible also with fee-overpaying from earlier transactions taken into consideration.
 Finally the transaction can be executed via `InnerTxnBuilder.Submit()`. It fails if already **16** **Inner Transaction** have been submitted in the block or the transaction itself fails. You can also access the *ID* of the newly create **ASA** on sucessful execution of the Inner Transaction by using the: `InnerTxn.created_asset_id()` instruction right after the submit. This will also be again shown in the *Example Scenario*
 
