@@ -4,7 +4,7 @@ from pyteal.ast.itxn import InnerTxn
 
 
 @Subroutine(TealType.uint64)
-def inner_asser_creation(txn_index: TealType.uint64) -> TxnExpr:
+def inner_asset_creation(txn_index: TealType.uint64) -> TxnExpr:
     """
     - returns the id of the generated asset or fails
     """
