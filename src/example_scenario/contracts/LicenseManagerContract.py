@@ -6,7 +6,7 @@ from pyteal import (Add, And, App, Approve, Assert, Balance, Btoi, Bytes,
 from pyteal.ast.asset import AssetHolding
 
 from utils.InnerTxnUtils import (inner_payment_txn,
-                                 inner_asser_creation, inner_asset_transfer)
+                                 inner_asset_creation, inner_asset_transfer)
 
 
 class LocalState:
@@ -203,7 +203,7 @@ def is_acc_opted_in(account: TealType.bytes):
 @Subroutine(TealType.uint64)
 def setup_application( ):
     """ perform application setup to initiate global state and create the managed ASA"""
-    asset_id = inner_asser_creation(Int(1))
+    asset_id = inner_asset_creation(Int(1))
     fixed_license_price = Btoi(Gtxn[1].application_args[6])
     refund_period = Btoi(Gtxn[1].application_args[7])
     return Seq(
