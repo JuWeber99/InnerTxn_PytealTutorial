@@ -14,7 +14,7 @@ def inner_asset_creation(txn_index: TealType.uint64) -> TxnExpr:
     return Seq([
         InnerTxnBuilder.Begin(),
         InnerTxnBuilder.SetFields({
-            TxnField.note: Bytes("TUT_ITXN_AC"),
+            #TxnField.note: Bytes("TUT_ITXN_AC"),
             TxnField.type_enum: TxnType.AssetConfig,
             TxnField.config_asset_clawback: Global.current_application_address(),
             TxnField.config_asset_reserve: Global.current_application_address(),
@@ -36,7 +36,7 @@ def inner_asset_transfer(asset_id: TealType.uint64, asset_amount: TealType.uint6
     return Seq([
         InnerTxnBuilder.Begin(),
         InnerTxnBuilder.SetFields({
-            TxnField.note: Bytes("TUT_ITXN_AT"),
+            #TxnField.note: Bytes("TUT_ITXN_AT"),
             TxnField.type_enum: TxnType.AssetTransfer,
             TxnField.xfer_asset: asset_id,
             TxnField.asset_sender: asset_sender,
@@ -52,7 +52,7 @@ def inner_payment_txn(amount: TealType.uint64, receiver: TealType.bytes) -> Expr
     return Seq([
         InnerTxnBuilder.Begin(),
         InnerTxnBuilder.SetFields({
-            TxnField.note: Bytes("TUT_ITXN_PAY"),
+            #TxnField.note: Bytes("TUT_ITXN_PAY"),
             TxnField.type_enum: TxnType.Payment,
             TxnField.sender: Global.current_application_address(),
             TxnField.amount: amount,

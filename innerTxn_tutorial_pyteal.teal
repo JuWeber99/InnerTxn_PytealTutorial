@@ -95,11 +95,9 @@ main_l24:
 callsub sub3
 return
 main_l25:
-sub0: // inner_asser_creation
+sub0: // inner_asset_creation
 store 17
 itxn_begin
-byte "TUT_ITXN_AC"
-itxn_field Note
 int acfg
 itxn_field TypeEnum
 global CurrentApplicationAddress
@@ -137,8 +135,6 @@ store 6
 store 5
 store 4
 itxn_begin
-byte "TUT_ITXN_AT"
-itxn_field Note
 int axfer
 itxn_field TypeEnum
 load 4
@@ -155,8 +151,6 @@ sub2: // inner_payment_txn
 store 9
 store 8
 itxn_begin
-byte "TUT_ITXN_PAY"
-itxn_field Note
 int pay
 itxn_field TypeEnum
 global CurrentApplicationAddress
