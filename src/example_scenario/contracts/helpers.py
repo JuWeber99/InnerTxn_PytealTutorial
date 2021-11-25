@@ -2,7 +2,6 @@ from pyteal import InnerTxnBuilder, TxnField, Seq, TealType, Subroutine, TxnObje
 
 
 
-########################## AUSSORTIEREN!!!!!! ##############################
 @Subroutine(TealType.uint64)
 def refundValidation(callID: TealType.uint64, appID: TealType.uint64, refundTxn: TxnObject):
     Assert(refundTxn.type_enum() == TxnType.Payment)
